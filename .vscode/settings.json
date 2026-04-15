@@ -1,0 +1,4 @@
+{
+    "github.copilot.chat.backgroundAgent.enabled": false,
+    "github.copilot.chat.anthropic.tools.websearch.enabled": true
+}
