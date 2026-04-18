@@ -10,10 +10,6 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.1",
-    "@fatsolutions/tongo-sdk": "^1.3.2",
-    "@hyperlane-xyz/registry": "^19.4.0",
-    "@hyperlane-xyz/sdk": "^19.13.0",
-    "@hyperlane-xyz/utils": "^19.13.0",
     "@privy-io/node": "^0.11.0",
     "@privy-io/react-auth": "^3.18.0",
     "@supabase/supabase-js": "^2.100.1",
