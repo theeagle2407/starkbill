@@ -8,9 +8,9 @@ const privy = new PrivyClient({
 
 export async function POST(req: NextRequest) {
   try {
-   const wallet = await (privy as any).walletApi.create({
-  chainType: 'starknet' as any,
-});
+    const wallet = await (privy as any).walletApi.create({
+      chainType: 'starknet' as any,
+    });
 
     return NextResponse.json({
       wallet: {

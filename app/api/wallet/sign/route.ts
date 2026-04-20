@@ -18,12 +18,10 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await (privy as any).walletApi.rpc({
-  walletId,
-  method: 'starknet_signMessage',
-  params: { message: hash },
-});
-
-return NextResponse.json({ signature: result.signature });
+      walletId,
+      method: 'starknet_signMessage',
+      params: { message: hash },
+    });
 
     return NextResponse.json({ signature: result.signature });
   } catch (err: any) {

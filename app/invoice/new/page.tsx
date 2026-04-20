@@ -3,14 +3,22 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
+import Link from 'next/link';
 import { createInvoice } from '@/lib/supabase';
 import type { InvoiceItem, Currency } from '@/lib/types';
+
+const BG = '#0A0A0F';
+const CARD = 'rgba(255,255,255,0.04)';
+const BORDER = 'rgba(255,255,255,0.08)';
+const TEXT = '#F0F0F5';
+const MUTED = '#8888A8';
+const CORAL = '#EC796B';
+const AMBER = '#F9A84D';
 
 const emptyItem = (): InvoiceItem => ({ description: '', quantity: 1, unitPrice: 0 });
 
 export default function NewInvoicePage() {
-  const { authenticated, ready, user, login } = usePrivy();
+  const { authenticated, ready, user, login, logout } = usePrivy();
   const router = useRouter();
 
   const [senderName, setSenderName] = useState('');
@@ -29,7 +37,6 @@ export default function NewInvoicePage() {
   }, [ready, authenticated]);
 
   const total = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-
   const addItem = () => setItems([...items, emptyItem()]);
   const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
   const updateItem = (idx: number, field: keyof InvoiceItem, value: string | number) => {
@@ -70,42 +77,63 @@ export default function NewInvoicePage() {
     width: '100%',
     padding: '10px 14px',
     borderRadius: '8px',
-    border: '1px solid #D1D5DB',
+    border: `1px solid ${BORDER}`,
     fontSize: '14px',
-    color: '#111827',
+    color: TEXT,
     outline: 'none',
     boxSizing: 'border-box' as const,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    fontFamily: 'system-ui, sans-serif',
   };
 
   const labelStyle = {
     display: 'block' as const,
-    fontSize: '13px',
-    fontWeight: '600' as const,
-    color: '#374151',
+    fontSize: '12px',
+    fontWeight: '700' as const,
+    color: MUTED,
     marginBottom: '6px',
+    letterSpacing: '0.3px',
+    textTransform: 'uppercase' as const,
   };
 
-  if (!ready) return null;
+  if (!ready) return (
+    <div style={{ minHeight: '100vh', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '28px', height: '28px', border: `2.5px solid ${CORAL}`, borderTopColor: 'transparent', borderRadius: '50%' }} />
+    </div>
+  );
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
-      <Header />
-      <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px' }}>
+    <div style={{ minHeight: '100vh', background: BG, color: TEXT, fontFamily: 'system-ui, sans-serif' }}>
+
+      {/* Header */}
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, borderBottom: `1px solid ${BORDER}`, backdropFilter: 'blur(20px)', background: 'rgba(10,10,15,0.85)', padding: '0 40px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <img src="/logo.svg" width={28} height={28} alt="StarkBill" />
+          <span style={{ fontSize: '18px', fontWeight: '800', color: TEXT, letterSpacing: '-0.5px' }}>
+            Stark<span style={{ background: `linear-gradient(135deg, ${CORAL}, ${AMBER})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Bill</span>
+          </span>
+        </Link>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <Link href="/dashboard" style={{ fontSize: '14px', color: MUTED, textDecoration: 'none' }}>Dashboard</Link>
+          <button onClick={() => { logout(); router.replace('/'); }} style={{ fontSize: '13px', color: MUTED, background: 'none', border: 'none', cursor: 'pointer' }}>Sign out</button>
+        </nav>
+      </header>
+
+      <main style={{ maxWidth: '760px', margin: '0 auto', padding: '40px' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#111827', letterSpacing: '-0.5px', marginBottom: '4px' }}>New Invoice</h1>
-          <p style={{ fontSize: '14px', color: '#6B7280' }}>Fill in the details below to create and share your invoice.</p>
+          <h1 style={{ fontSize: '26px', fontWeight: '900', letterSpacing: '-0.5px', marginBottom: '4px' }}>New Invoice</h1>
+          <p style={{ fontSize: '14px', color: MUTED }}>Fill in the details below to create and share your invoice.</p>
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', marginBottom: '24px', fontSize: '14px', color: '#DC2626' }}>
+          <div style={{ padding: '12px 16px', background: 'rgba(236,121,107,0.08)', border: '1px solid rgba(236,121,107,0.2)', borderRadius: '8px', marginBottom: '24px', fontSize: '14px', color: CORAL }}>
             {error}
           </div>
         )}
 
         {/* From */}
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '24px', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>From</h2>
+        <div style={{ background: CARD, borderRadius: '14px', border: `1px solid ${BORDER}`, padding: '24px', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '20px', color: TEXT }}>From</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
               <label style={labelStyle}>Your name *</label>
@@ -113,7 +141,7 @@ export default function NewInvoicePage() {
             </div>
             <div>
               <label style={labelStyle}>Your email</label>
-              <input style={{ ...inputStyle, backgroundColor: '#F9FAFB', color: '#6B7280' }} value={user?.email?.address || ''} readOnly />
+              <input style={{ ...inputStyle, opacity: 0.5 }} value={user?.email?.address || ''} readOnly />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelStyle}>Your Starknet wallet address *</label>
@@ -123,8 +151,8 @@ export default function NewInvoicePage() {
         </div>
 
         {/* To */}
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '24px', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>To</h2>
+        <div style={{ background: CARD, borderRadius: '14px', border: `1px solid ${BORDER}`, padding: '24px', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '20px', color: TEXT }}>To</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
               <label style={labelStyle}>Client name *</label>
@@ -138,8 +166,8 @@ export default function NewInvoicePage() {
         </div>
 
         {/* Details */}
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '24px', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>Details</h2>
+        <div style={{ background: CARD, borderRadius: '14px', border: `1px solid ${BORDER}`, padding: '24px', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '20px', color: TEXT }}>Details</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             <div>
               <label style={labelStyle}>Currency *</label>
@@ -156,29 +184,30 @@ export default function NewInvoicePage() {
 
           {/* Line items */}
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 40px', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 110px 36px', gap: '8px', marginBottom: '8px' }}>
               {['Description', 'Qty', 'Unit price', ''].map(h => (
-                <div key={h} style={{ fontSize: '12px', fontWeight: '600', color: '#6B7280' }}>{h}</div>
+                <div key={h} style={{ fontSize: '11px', fontWeight: '700', color: MUTED, letterSpacing: '0.5px', textTransform: 'uppercase' }}>{h}</div>
               ))}
             </div>
             {items.map((item, idx) => (
-              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 40px', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 110px 36px', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
                 <input style={inputStyle} value={item.description} onChange={e => updateItem(idx, 'description', e.target.value)} placeholder="Service or product" />
                 <input style={inputStyle} type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)} />
                 <input style={inputStyle} type="number" min="0" step="0.01" value={item.unitPrice} onChange={e => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} placeholder="0.00" />
-                <button onClick={() => removeItem(idx)} disabled={items.length === 1} style={{ background: 'none', border: 'none', cursor: items.length === 1 ? 'not-allowed' : 'pointer', color: '#9CA3AF', fontSize: '18px' }}>×</button>
+                <button onClick={() => removeItem(idx)} disabled={items.length === 1}
+                  style={{ background: 'none', border: 'none', cursor: items.length === 1 ? 'not-allowed' : 'pointer', color: MUTED, fontSize: '20px', opacity: items.length === 1 ? 0.3 : 1 }}>×</button>
               </div>
             ))}
-            <button onClick={addItem} style={{ marginTop: '8px', fontSize: '13px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', padding: 0 }}>
+            <button onClick={addItem} style={{ marginTop: '8px', fontSize: '13px', color: CORAL, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', padding: 0 }}>
               + Add line item
             </button>
           </div>
 
           {/* Total */}
-          <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '4px' }}>Total</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#111827', letterSpacing: '-0.5px' }}>
+              <div style={{ fontSize: '12px', color: MUTED, marginBottom: '4px', fontWeight: '700', letterSpacing: '0.5px' }}>TOTAL</div>
+              <div style={{ fontSize: '28px', fontWeight: '900', letterSpacing: '-1px', background: `linear-gradient(135deg, ${CORAL}, ${AMBER})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {total.toFixed(2)} {currency}
               </div>
             </div>
@@ -188,29 +217,16 @@ export default function NewInvoicePage() {
           <div style={{ marginTop: '16px' }}>
             <label style={labelStyle}>Notes (optional)</label>
             <textarea
-              style={{ ...inputStyle, height: '80px', resize: 'vertical' }}
+              style={{ ...inputStyle, height: '80px', resize: 'vertical' as const }}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Payment terms, bank details, or any additional information..."
+              placeholder="Payment terms or additional information..."
             />
           </div>
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          style={{
-            width: '100%',
-            padding: '14px',
-            backgroundColor: submitting ? '#93C5FD' : '#2563EB',
-            color: '#FFFFFF',
-            borderRadius: '10px',
-            border: 'none',
-            fontSize: '16px',
-            fontWeight: '700',
-            cursor: submitting ? 'not-allowed' : 'pointer',
-          }}
-        >
+        <button onClick={handleSubmit} disabled={submitting}
+          style={{ width: '100%', padding: '14px', background: submitting ? 'rgba(236,121,107,0.4)' : `linear-gradient(135deg, ${CORAL}, ${AMBER})`, color: '#fff', borderRadius: '10px', border: 'none', fontSize: '16px', fontWeight: '700', cursor: submitting ? 'not-allowed' : 'pointer' }}>
           {submitting ? 'Creating invoice...' : 'Create invoice'}
         </button>
       </main>
