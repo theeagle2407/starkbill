@@ -14,7 +14,9 @@ export default function PrivyProvider({ children }: { children: React.ReactNode 
           logo: '/logo.svg',
         },
         embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
+          ethereum: {
+            createOnLogin: 'users-without-wallets',
+          },
         },
       }}
     >
