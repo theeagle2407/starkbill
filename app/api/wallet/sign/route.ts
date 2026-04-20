@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await (privy.walletApi as any).rpc({
+    const result = await (privy as any).walletApi.rpc({
   walletId,
   method: 'starknet_signMessage',
   params: { message: hash },
